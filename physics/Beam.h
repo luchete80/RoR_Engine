@@ -109,7 +109,7 @@ public:
     void              resolveCollisions(float max_distance, bool consider_up);
     void              updateSkidmarks();                   //!< Creates or updates skidmarks. No side effects.
     void              prepareInside(bool inside);          //!< Prepares vehicle for in-cabin camera use.
-    void              UpdateFlareStates(float dt_sec);
+
     void              updateVisual(float dt=0);
     void              ScaleActor(float value);
     irr::core::vector3df     GetGForcesCur() { return m_camera_local_gforces_cur; };
@@ -178,12 +178,7 @@ public:
     int               ar_num_wings;
     std::vector<std::string>  description;
     std::vector<authorinfo_t> authors;
-    std::vector<exhaust_t>    exhausts;
-    std::vector<rope_t>       ar_ropes;
-    std::vector<ropable_t>    ar_ropables;
-    std::vector<tie_t>        ar_ties;
-    std::vector<hook_t>       ar_hooks;
-    std::vector<flare_t>      ar_flares;
+
     std::vector<Airbrake*>    ar_airbrakes;
     Ogre::AxisAlignedBox      ar_bounding_box;     //!< standard bounding box (surrounds all nodes of an actor)
     Ogre::AxisAlignedBox      ar_predicted_bounding_box;
