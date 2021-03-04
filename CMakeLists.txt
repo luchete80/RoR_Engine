@@ -9,7 +9,7 @@
 # include_directories("/home/pi/luciano/irrlicht-1.8.4/include")
 # endif(WIN32)
 
-# include_directories("src")
+include_directories("${PROJECT_SOURCE_DIR}")
 # include_directories("src/datatypes")
 # include_directories("src/gfx")
 # include_directories("src/physics")
