@@ -37,7 +37,7 @@
 // The RoR required includes (should be included already)
 #include "ForwardDeclarations.h"
 #include "BeamConstants.h"
-#include "BitFlags.h"
+//#include "BitFlags.h"
 #include "CmdKeyInertia.h"
 #include <vector>
 #include <memory>

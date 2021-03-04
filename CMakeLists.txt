@@ -1,7 +1,7 @@
 # include_directories("./include")
 # include_directories("d:/Luciano/bullet3/src")
 # if(WIN32)
-# include_directories("d:/Luciano/irrlicht-1.8.4/include")
+include_directories("d:/Luciano/irrlicht-1.8.4/include")
 # include_directories("d:/Luciano/irrlicht-1.8.4/Source/Irrlicht")
 # include_directories("d:/Luciano/irrbullet/include")
 # include_directories("d:/Luciano/OIS_install/include/ois")
@@ -10,6 +10,9 @@
 # endif(WIN32)
 
 include_directories("${PROJECT_SOURCE_DIR}")
+include_directories("${PROJECT_SOURCE_DIR}/physics")
+include_directories("${PROJECT_SOURCE_DIR}/physics/collision")
+include_directories("${PROJECT_SOURCE_DIR}/physics/flex")
 # include_directories("src/datatypes")
 # include_directories("src/gfx")
 # include_directories("src/physics")

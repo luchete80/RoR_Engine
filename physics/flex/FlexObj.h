@@ -27,8 +27,8 @@
 
  
  
-#include <OgreSubMesh.h>
-#include <OgreHardwareBuffer.h>
+// #include <OgreSubMesh.h>
+// #include <OgreHardwareBuffer.h>
 
 /// Texture coordinates for old-style actor body (the "cab")
 struct CabTexcoord

@@ -29,8 +29,8 @@
  
  
  
-#include <OgreSubMesh.h>
-#include <OgreHardwareBuffer.h>
+// #include <OgreSubMesh.h>
+// #include <OgreHardwareBuffer.h>
 
 class FlexMesh: public Flexable
 {

@@ -23,12 +23,12 @@
 
 #include "RoRPrerequisites.h"
 
-#include "Application.h"
+//#include "Application.h"
 #include "BeamData.h"
 #include "CmdKeyInertia.h"
-#include "GfxActor.h"
-#include "PerVehicleCameraContext.h"
-#include "RigDef_Prerequisites.h"
+//#include "GfxActor.h"
+//#include "PerVehicleCameraContext.h"
+//#include "RigDef_Prerequisites.h"
 
  
 
