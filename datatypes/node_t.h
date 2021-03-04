@@ -20,7 +20,8 @@
 */
 
 #include <limits>
-
+#include <memory.h>
+#include <vector3d.h>	//Taken from irrlicht
 #pragma once
 
  

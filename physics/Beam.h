@@ -26,6 +26,7 @@
 //#include "Application.h"
 #include "BeamData.h"
 #include "CmdKeyInertia.h"
+#include <aabbox3d.h>
 //#include "GfxActor.h"
 //#include "PerVehicleCameraContext.h"
 //#include "RigDef_Prerequisites.h"
@@ -35,7 +36,8 @@
 /// Softbody object; can be anything from soda can to a space shuttle
 /// Monsterclass; contains logic related to physics, network, sound, threading, rendering.
 /// NOTE: Until 01/2018, this class was named `Beam` (and was derived from `rig_t`), you may find references to this.
-class Actor : public ZeroedMemoryAllocator
+class Actor 
+//: public ZeroedMemoryAllocator
 {
     friend class ActorSpawner;
     friend class RoR::ActorManager;
@@ -52,15 +54,13 @@ public:
     Actor(
           int actor_id
         , unsigned int vector_index
-        , std::shared_ptr<RigDef::File> def
-        , RoR::ActorSpawnRequest rq
+        //, std::shared_ptr<RigDef::File> def
+        //, RoR::ActorSpawnRequest rq
         );
 
     ~Actor();
 
     void              ApplyNodeBeamScales();
-    void              PushNetwork(char* data, int size);   //!< Parses network data; fills actor's data buffers and flips them. Called by the network thread.
-    void              CalcNetwork();
     bool              AddTyrePressure(float v);
     float             GetTyrePressure();
     float             getRotation();
@@ -83,8 +83,6 @@ public:
     bool              ReplayStep();
     void              ForceFeedbackStep(int steps);
     void              HandleInputEvents(float dt);
-    void              HandleAngelScriptEvents(float dt);
-    void              UpdateSoundSources();
     void              HandleMouseMove(int node, irr::core::vector3df pos, float force); //!< Event handler
     void              ToggleLights();                      //!< Event handler
     void              ToggleTies(int group=-1);
@@ -93,13 +91,9 @@ public:
     void              EngineTriggerHelper(int engineNumber, int type, float triggerValue);
     void              ToggleSlideNodeLock();
     void              ToggleCustomParticles();
-    void              ToggleAxleDiffMode();                //! Cycles through the available inter axle diff modes
-    void              DisplayAxleDiffMode();               //! Displays the current inter axle diff mode
-    void              ToggleWheelDiffMode();               //! Cycles through the available inter wheel diff modes
-    void              DisplayWheelDiffMode();              //! Displays the current inter wheel diff mode
     void              ToggleTransferCaseMode();            //! Toggles between 2WD and 4WD mode
     void              ToggleTransferCaseGearRatio();       //! Toggles between Hi and Lo mode
-    std::string      GetTransferCaseName();               //! Gets the current transfer case mode name (4WD Hi, ...)
+    std::string       GetTransferCaseName();               //! Gets the current transfer case mode name (4WD Hi, ...)
     void              DisplayTransferCaseMode();           //! Displays the current transfer case mode
     void              ToggleParkingBrake();                //!< Event handler
     void              ToggleAntiLockBrake();               //!< Event handler
@@ -132,46 +126,31 @@ public:
     void              UnmuteAllSounds();
     float             getTotalMass(bool withLocked=true);
     float             getAvgPropedWheelRadius() { return m_avg_proped_wheel_radius; };
-    int               getWheelNodeCount() const;
+
     void              setMass(float m);
-    bool              getBrakeLightVisible();
-    bool              getReverseLightVisible();            //!< Tells if the reverse-light is currently lit.
-    bool              getCustomLightVisible(int number);
-    void              setCustomLightVisible(int number, bool visible);
-    bool              getBeaconMode();
-    void              toggleBlinkType(blinktype blink);
-    void              setBlinkType(blinktype blink);
-    void              setAirbrakeIntensity(float intensity);
-    bool              getCustomParticleMode();
-    void              sendStreamData();
     bool              isTied();
     bool              isLocked(); 
     bool              hasSlidenodes() { return !m_slidenodes.empty(); };
-    void              updateDashBoards(float dt);
     void              UpdateBoundingBoxes();
     void              calculateAveragePosition();
     void              UpdatePhysicsOrigin();
     void              SoftReset();
     void              SyncReset(bool reset_position);      //!< this one should be called only synchronously (without physics running in background)
-    blinktype         getBlinkType();
+
     std::vector<authorinfo_t>     getAuthors();
     std::vector<std::string>      getDescription();
     std::string     GetSectionConfig()                 { return m_section_config; }
-    RoR::PerVehicleCameraContext* GetCameraContext()    { return &m_camera_context; }
     std::vector<Actor*> GetAllLinkedActors()            { return m_linked_actors; }; //!< Returns a list of all connected (hooked) actors
     irr::core::vector3df     GetCameraDir()                    { return (ar_nodes[ar_main_camera_node_pos].RelPosition - ar_nodes[ar_main_camera_node_dir].RelPosition).normalisedCopy(); }
     irr::core::vector3df     GetCameraRoll()                   { return (ar_nodes[ar_main_camera_node_pos].RelPosition - ar_nodes[ar_main_camera_node_roll].RelPosition).normalisedCopy(); }
     irr::core::vector3df     GetFFbBodyForces() const          { return m_force_sensors.out_body_forces; }
-    RoR::GfxActor*    GetGfxActor()                     { return m_gfx_actor.get(); }
-    void              RequestUpdateHudFeatures()        { m_hud_features_ok = false; }
+    //RoR::GfxActor*    GetGfxActor()                     { return m_gfx_actor.get(); }
+    
     irr::core::vector3df     getNodePosition(int nodeNumber);     //!< Returns world position of node
-    float        getMinimalCameraRadius();
+    float        	getMinimalCameraRadius();
     Replay*           getReplay();
-    float             GetFFbHydroForces() const         { return m_force_sensors.out_hydros_forces; }
     bool              isPreloadedWithTerrain() const    { return m_preloaded_with_terrain; };
     bool              isBeingReset() const              { return m_ongoing_reset; };
-    VehicleAI*        getVehicleAI()                    { return ar_vehicle_ai; }
-    float             getWheelSpeed() const             { return ar_wheel_speed; }
     int               GetNumNodes() const               { return ar_num_nodes; }
     CacheEntry*       GetUsedSkin() const               { return m_used_skin_entry; }
     void              SetUsedSkin(CacheEntry* skin)     { m_used_skin_entry = skin; }
@@ -219,22 +198,19 @@ public:
     std::vector<Ogre::AxisAlignedBox>  ar_predicted_coll_bounding_boxes;
     int               ar_num_contactable_nodes; //!< Total number of nodes which can contact ground or cabs
     int               ar_num_contacters; //!< Total number of nodes which can selfcontact cabs
-    wheel_t           ar_wheels[MAX_WHEELS];
     int               ar_num_wheels;
     command_t         ar_command_key[MAX_COMMANDS + 10]; // 0 for safety
-    cparticle_t       ar_custom_particles[MAX_CPARTICLES];
     int               ar_num_custom_particles;
     soundsource_t     ar_soundsources[MAX_SOUNDSCRIPTS_PER_TRUCK];
     int               ar_num_soundsources;
     int               ar_pressure_beams[MAX_PRESSURE_BEAMS];
     int               ar_free_pressure_beam;
-    AeroEngine*       ar_aeroengines[MAX_AEROENGINES];
+
     int               ar_num_aeroengines;
-    Screwprop*        ar_screwprops[MAX_SCREWPROPS];
+
     int               ar_num_screwprops;
     int               ar_cabs[MAX_CABS*3];
     int               ar_num_cabs;
-    std::vector<hydrobeam_t> ar_hydros;
     int               ar_collcabs[MAX_CABS];
     collcab_rate_t    ar_inter_collcabrate[MAX_CABS];
     collcab_rate_t    ar_intra_collcabrate[MAX_CABS];
@@ -268,7 +244,7 @@ public:
     float             cc_target_rpm;      //!< Cruise Control
     float             cc_target_speed;    //!< Cruise Control
     float             cc_target_speed_lower_limit; //!< Cruise Control
-    std::deque<float> cc_accs;            //!< Cruise Control
+    //std::deque<float> cc_accs;            //!< Cruise Control
     bool              sl_enabled;         //!< Speed limiter;
     float             sl_speed_limit;     //!< Speed limiter;
     int               ar_extern_camera_mode;
@@ -329,13 +305,8 @@ public:
     int               ar_custom_camera_node;          //!< Sim state; custom tracking node for 3rd-person camera
     std::string       ar_filename;                    //!< Attribute; filled at spawn
     std::string       ar_filehash;                    //!< Attribute; filled at spawn
-    int               ar_airbrake_intensity;          //!< Physics state; values 0-5
-    int               ar_net_source_id;
-    int               ar_net_stream_id;
-    std::map<int,int> ar_net_stream_results;
-    Ogre::Timer       ar_net_timer;
-    unsigned long     ar_net_last_update_time;
-    DashBoardManager* ar_dashboard;
+	
+
     SimState          ar_sim_state;                   //!< Sim state
     float             ar_collision_range;             //!< Physics attr
     float             ar_top_speed;                   //!< Sim state
@@ -436,13 +407,13 @@ private:
     // -------------------- data -------------------- //
 
     std::vector<std::shared_ptr<Task>> m_flexbody_tasks;   //!< Gfx state
-    std::shared_ptr<RigDef::File>      m_definition;
-    std::unique_ptr<RoR::GfxActor>     m_gfx_actor;
+    //std::shared_ptr<RigDef::File>      m_definition;
+    //std::unique_ptr<RoR::GfxActor>     m_gfx_actor;
     RoR::PerVehicleCameraContext       m_camera_context;
     std::string                       m_section_config;
     std::vector<SlideNode>             m_slidenodes;       //!< all the SlideNodes available on this actor
     std::vector<RailGroup*>            m_railgroups;       //!< all the available RailGroups for this actor
-    std::vector<Ogre::Entity*>         m_deletion_entities;    //!< For unloading vehicle; filled at spawn.
+    //std::vector<Ogre::Entity*>         m_deletion_entities;    //!< For unloading vehicle; filled at spawn.
     std::vector<irr::scene::ISceneNode*>      m_deletion_scene_nodes; //!< For unloading vehicle; filled at spawn.
     int               m_proped_wheel_pairs[MAX_WHEELS];    //!< Physics attr; For inter-differential locking
     int               m_num_proped_wheels;          //!< Physics attr, filled at spawn - Number of propelled wheels.
@@ -464,10 +435,8 @@ private:
     irr::core::vector3df     m_mouse_grab_pos;
     float             m_mouse_grab_move_force;
     float             m_spawn_rotation;
-    Ogre::MovableText* m_net_label_mt;
-    irr::scene::ISceneNode*  m_net_label_node;
     std::string   m_net_username;
-    Ogre::Timer       m_reset_timer;
+    //Ogre::Timer       m_reset_timer;
     float             m_custom_light_toggle_countdown; //!< Input system helper status
     irr::core::vector3df     m_rotation_request_center;
     float             m_rotation_request;         //!< Accumulator
@@ -493,7 +462,6 @@ private:
     int               m_replay_pos_prev;       //!< Sim state
     int               m_previous_gear;         //!< Sim state; land vehicle shifting
     float             m_handbrake_force;       //!< Physics attr; defined in truckfile
-    Airfoil*          m_fusealge_airfoil;      //!< Physics attr; defined in truckfile
     node_t*           m_fusealge_front;        //!< Physics attr; defined in truckfile
     node_t*           m_fusealge_back;         //!< Physics attr; defined in truckfile
     float             m_fusealge_width;        //!< Physics attr; defined in truckfile
@@ -503,14 +471,11 @@ private:
     float             m_load_mass;             //!< Physics attr; predefined load mass in Kg
     int               m_masscount;             //!< Physics attr; Number of nodes loaded with l option
     float             m_dry_mass;              //!< Physics attr;
-    unsigned int      m_net_custom_lights[4];  //!< Sim state
-    unsigned char     m_net_custom_light_count;//!< Sim attr
-    RoR::GfxFlaresMode m_flares_mode;          //!< Gfx attr, clone of GVar -- TODO: remove
-    std::unique_ptr<Buoyance> m_buoyance;      //!< Physics
-    CacheEntry*       m_used_skin_entry;       //!< Graphics
-    RoR::Skidmark*    m_skid_trails[MAX_WHEELS*2];
-    bool              m_antilockbrake;         //!< GUI state
-    bool              m_tractioncontrol;       //!< GUI state
+
+
+
+    //CacheEntry*       m_used_skin_entry;       //!< Graphics
+
     bool              m_ongoing_reset;         //!< Hack to prevent position/rotation creep during interactive truck reset
     bool              m_has_axles_section;     //!< Temporary (legacy parsing helper) until central diffs are implemented
 
@@ -549,12 +514,6 @@ private:
         float         out_hydros_forces;
     } m_force_sensors; //!< Data for ForceFeedback devices
 
-    struct NetUpdate
-    {
-        std::vector<char> veh_state;   //!< Actor properties (engine, brakes, lights, ...)
-        std::vector<char> node_data;   //!< Compressed node positions
-        std::vector<float> wheel_data; //!< Wheel rotations
-    };
-
-    std::deque<NetUpdate> m_net_updates; //!< Incoming stream of NetUpdates
+    
+    
 };

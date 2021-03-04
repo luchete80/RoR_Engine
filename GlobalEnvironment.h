@@ -30,16 +30,16 @@ public:
 
     GlobalEnvironment() :
           collisions(0)
-        , mainCamera(0)
+        // , mainCamera(0)
         , player(0)
-        , sceneManager(0)
+        //, sceneManager(0)
         , SkyX(0)
         , threadPool(0)
         , mrTime(0.f)
     {}
 
-    irr::scene::ICameraSceneNode*       mainCamera;
-    irr::scene::ISceneManager* sceneManager;
+    // irr::scene::ICameraSceneNode*       mainCamera;
+    // irr::scene::ISceneManager* sceneManager;
     Character*          player;
     Collisions*         collisions;
     SkyXManager*        SkyX;

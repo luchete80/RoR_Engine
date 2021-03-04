@@ -57,11 +57,11 @@ along with Rigs of Rods.  If not, see <http://www.gnu.org/licenses/>.
 
 #define CHARACTER_ANIM_NAME_LEN 10 // Restricted for networking
 
-enum VisibilityMasks {
-	DEPTHMAP_ENABLED  = BITMASK(1),
-	DEPTHMAP_DISABLED = BITMASK(2),
-	HIDE_MIRROR       = BITMASK(3),
-};
+// enum VisibilityMasks {
+	// DEPTHMAP_ENABLED  = BITMASK(1),
+	// DEPTHMAP_DISABLED = BITMASK(2),
+	// HIDE_MIRROR       = BITMASK(3),
+// };
 
 extern GlobalEnvironment *gEnv;
 

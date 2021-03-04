@@ -113,7 +113,6 @@ static const float flapangles[6] = {0.f, -0.07f, -0.17f, -0.33f, -0.67f, -1.f};
 /* basic structures */
 
 #include "datatypes/node_t.h"
-#include "datatypes/shock_t.h"
 
 struct collcab_rate_t
 {
@@ -128,68 +127,6 @@ struct soundsource_t
     SoundScriptInstance* ssi;
     int nodenum;
     int type;
-};
-
-#include "datatypes/wheel_t.h"
-
-struct hook_t
-{
-    int     hk_locked;
-    int     hk_group;
-    int     hk_lockgroup;
-    bool    hk_selflock;
-    bool    hk_autolock;
-    bool    hk_nodisable;
-    float   hk_maxforce;
-    float   hk_lockrange;
-    float   hk_lockspeed;
-    float   hk_timer;
-    float   hk_timer_preset;
-    float   hk_min_length; //!< Absolute value in meters
-    node_t* hk_hook_node;
-    node_t* hk_lock_node;
-    beam_t* hk_beam;
-    Actor*  hk_locked_actor;
-};
-
-struct ropable_t
-{
-    node_t *node;
-    int pos;            //!< Index into ar_ropables
-    int group;
-    int attached_ties;  //!< State
-    int attached_ropes; //!< State
-    bool multilock;     //!< Attribute
-};
-
-struct rope_t
-{
-    int        rp_locked;
-    int        rp_group;
-    beam_t*    rp_beam;
-    ropable_t* rp_locked_ropable;
-    Actor*     rp_locked_actor;
-};
-
-struct tie_t
-{
-    Actor*     ti_locked_actor;
-    beam_t*    ti_beam;
-    ropable_t* ti_locked_ropable;
-    int        ti_group;
-    float      ti_contract_speed;
-    float      ti_max_stress;
-    float      ti_min_length;       //!< Proportional to orig; length
-
-    bool       ti_no_self_lock:1;   //!< Attribute
-    bool       ti_tied:1;           //!< State
-    bool       ti_tying:1;          //!< State
-};
-
-struct wing_t
-{
-    FlexAirfoil *fa;
-    irr::scene::ISceneNode *cnode;
 };
 
 struct commandbeam_state_t
@@ -264,212 +201,108 @@ struct rotator_t
     float debug_aerror;
 };
 
-struct flare_t
-{
-    int noderef;
-    int nodex;
-    int nodey;
-    float offsetx;
-    float offsety;
-    float offsetz;
-    irr::scene::ISceneNode *snode;
-    //Ogre::BillboardSet *bbs;				//LUCIANO
-    irr::scene::ILightSceneNode *light;
-    FlareType fl_type;
-    int controlnumber;
-    bool controltoggle_status;
-    float blinkdelay;
-    float blinkdelay_curr;
-    bool blinkdelay_state;
-    float size;
-    bool isVisible;
-};
-
-/**
-* SIM-CORE; Prop = an object mounted on vehicle chassis.
-*/
-struct prop_t
-{
-    prop_t() { memset(this, 0, sizeof(*this)); }
-
-    int noderef;
-    int nodex;
-    int nodey;
-    float offsetx;
-    float offsety;
-    float offsetz;
-    float rotaX;
-    float rotaY;
-    float rotaZ;
-    float orgoffsetX;
-    float orgoffsetY;
-    float orgoffsetZ;
-    irr::core::quaternion rot;
-    irr::scene::ISceneNode *scene_node; //!< The pivot scene node (parented to root-node).
-    irr::scene::ISceneNode *wheel; //!< Special prop: custom steering wheel for dashboard
-    irr::core::vector3df wheelpos; //!< Special prop: custom steering wheel for dashboard
-    int mirror;             //<! Special prop: rear view mirror {0 = disabled, -1 = right, 1 = left}
-    char beacontype;        //<! Special prop: beacon {0 = none, 'b' = user-specified, 'r' = red, 'p' = police lightbar, 'L'/'R'/'w' - aircraft wings}
-
-    // formerly named "bbs"
-    //Ogre::BillboardSet *beacon_flares_billboard_system[4];	//LUCIANO
-
-    // formerly named bbsnode
-    irr::scene::ISceneNode *beacon_flare_billboard_scene_node[4];
-
-    // formerly named "light"
-    irr::scene::ILightSceneNode *beacon_light[4];
-
-    // formerly named "brate"
-    float beacon_light_rotation_rate[4]; //<! Radians per second
-    
-    // formerly named "bpos"
-    float beacon_light_rotation_angle[4]; //<! Radians
-    
-    float animratio[10]; //!< A coefficient for the animation, prop degree if used with mode: rotation and propoffset if used with mode: offset.
-    int animFlags[10];
-    int animMode[10];
-    float animOpt3[10]; //!< Various purposes
-    float animOpt5[10];
-    int animKey[10];
-    int animKeyState[10];
-    int lastanimKS[10];
-    float wheelrotdegree;
-    int cameramode; //!< Visibility control {-2 = always, -1 = 3rdPerson only, 0+ = cinecam index}
-    MeshObject *mo;
-    MeshObject *wheelmo;
-
-    struct {
-        float lower_limit;  //!< The lower limit for the animation
-        float upper_limit;  //!< The upper limit for the animation
-    } constraints[10];
-
-    int  pp_aero_engine_idx;          //!< Special - a turboprop/pistonprop reference
-    bool pp_aero_propeller_blade:1;   //!< Special - single blade mesh
-    bool pp_aero_propeller_spin:1;    //!< Special - blurred spinning propeller effect
-};
-
-struct exhaust_t
-{
-    int emitterNode;
-    int directionNode;
-    irr::scene::ISceneNode *smokeNode;
-    irr::scene::IParticleSystemSceneNode* smoker;
-};
-
-
-struct cparticle_t
-{
-    int emitterNode;
-    int directionNode;
-    bool active;
-    irr::scene::ISceneNode *snode;
-    irr::scene::IParticleSystemSceneNode* psys;
-};
-
-
 
 // some non-beam structs
 
 
-struct collision_box_t
-{
-    bool virt;
-    bool refined;
-    bool selfrotated;
-    bool camforced;
-    bool enabled;
-    short event_filter;
-    short eventsourcenum;
-    irr::core::vector3df lo;           //!< absolute collision box
-    irr::core::vector3df hi;           //!< absolute collision box
-    irr::core::vector3df center;       //!< center of rotation
-    irr::core::quaternion rot;       //!< rotation
-    irr::core::quaternion unrot;     //!< rotation
-    irr::core::vector3df selfcenter;   //!< center of self rotation
-    irr::core::quaternion selfrot;   //!< self rotation
-    irr::core::quaternion selfunrot; //!< self rotation
-    irr::core::vector3df relo;         //!< relative collision box
-    irr::core::vector3df rehi;         //!< relative collision box
-    irr::core::vector3df campos;       //!< camera position
-};
+// struct collision_box_t
+// {
+    // bool virt;
+    // bool refined;
+    // bool selfrotated;
+    // bool camforced;
+    // bool enabled;
+    // short event_filter;
+    // short eventsourcenum;
+    // irr::core::vector3df lo;           //!< absolute collision box
+    // irr::core::vector3df hi;           //!< absolute collision box
+    // irr::core::vector3df center;       //!< center of rotation
+    // irr::core::quaternion rot;       //!< rotation
+    // irr::core::quaternion unrot;     //!< rotation
+    // irr::core::vector3df selfcenter;   //!< center of self rotation
+    // irr::core::quaternion selfrot;   //!< self rotation
+    // irr::core::quaternion selfunrot; //!< self rotation
+    // irr::core::vector3df relo;         //!< relative collision box
+    // irr::core::vector3df rehi;         //!< relative collision box
+    // irr::core::vector3df campos;       //!< camera position
+// };
 
-struct ground_model_t
-{
-    float va;                       //!< adhesion velocity
-    float ms;                       //!< static friction coefficient
-    float mc;                       //!< sliding friction coefficient
-    float t2;                       //!< hydrodynamic friction (s/m)
-    float vs;                       //!< stribeck velocity (m/s)
-    float alpha;                    //!< steady-steady
-    float strength;                 //!< ground strength
+// struct ground_model_t
+// {
+    // float va;                       //!< adhesion velocity
+    // float ms;                       //!< static friction coefficient
+    // float mc;                       //!< sliding friction coefficient
+    // float t2;                       //!< hydrodynamic friction (s/m)
+    // float vs;                       //!< stribeck velocity (m/s)
+    // float alpha;                    //!< steady-steady
+    // float strength;                 //!< ground strength
 
-    float fluid_density;            //!< Density of liquid
-    float flow_consistency_index;   //!< general drag coefficient
+    // float fluid_density;            //!< Density of liquid
+    // float flow_consistency_index;   //!< general drag coefficient
 
-    //! if flow_behavior_index<1 then liquid is Pseudoplastic (ketchup, whipped cream, paint)
-    //! if =1 then liquid is Newtoni'an fluid
-    //! if >1 then liquid is Dilatant fluid (less common)
-    float flow_behavior_index;
+    // //! if flow_behavior_index<1 then liquid is Pseudoplastic (ketchup, whipped cream, paint)
+    // //! if =1 then liquid is Newtoni'an fluid
+    // //! if >1 then liquid is Dilatant fluid (less common)
+    // float flow_behavior_index;
 
     
-    float solid_ground_level;       //!< how deep the solid ground is
-    float drag_anisotropy;          //!< Upwards/Downwards drag anisotropy
+    // float solid_ground_level;       //!< how deep the solid ground is
+    // float drag_anisotropy;          //!< Upwards/Downwards drag anisotropy
 
-    int fx_type;
-    irr::video::SColor fx_colour;
-    char name[256];
-    char basename[256];
-    char particle_name[256];
+    // int fx_type;
+    // irr::video::SColor fx_colour;
+    // char name[256];
+    // char basename[256];
+    // char particle_name[256];
 
-    int fx_particle_amount;         //!< amount of particles
+    // int fx_particle_amount;         //!< amount of particles
 
-    float fx_particle_min_velo;     //!< minimum velocity to display sparks
-    float fx_particle_max_velo;     //!< maximum velocity to display sparks
-    float fx_particle_fade;         //!< fade coefficient
-    float fx_particle_timedelta;    //!< delta for particle animation
-    float fx_particle_velo_factor;  //!< velocity factor
-    float fx_particle_ttl;
-};
+    // float fx_particle_min_velo;     //!< minimum velocity to display sparks
+    // float fx_particle_max_velo;     //!< maximum velocity to display sparks
+    // float fx_particle_fade;         //!< fade coefficient
+    // float fx_particle_timedelta;    //!< delta for particle animation
+    // float fx_particle_velo_factor;  //!< velocity factor
+    // float fx_particle_ttl;
+// };
 
-struct authorinfo_t
-{
-    int id;
-    std::string type;
-    std::string name;
-    std::string email;
-};
+// struct authorinfo_t
+// {
+    // int id;
+    // std::string type;
+    // std::string name;
+    // std::string email;
+// };
 
 namespace RoR {
 
-struct ActorSpawnRequest
-{
-    enum class Origin //!< Enables special processing
-    {
-        UNKNOWN,
-        CONFIG_FILE,  //!< 'Preselected vehicle' in RoR.cfg
-        TERRN_DEF,    //!< Preloaded with terrain
-        USER,         //!< Direct selection by user via GUI
-        SAVEGAME,     //!< User spawned and part of a savegame
-        NETWORK       //!< Remote controlled
-    };
+// struct ActorSpawnRequest
+// {
+    // enum class Origin //!< Enables special processing
+    // {
+        // UNKNOWN,
+        // CONFIG_FILE,  //!< 'Preselected vehicle' in RoR.cfg
+        // TERRN_DEF,    //!< Preloaded with terrain
+        // USER,         //!< Direct selection by user via GUI
+        // SAVEGAME,     //!< User spawned and part of a savegame
+        // NETWORK       //!< Remote controlled
+    // };
 
-    ActorSpawnRequest();
+    // ActorSpawnRequest();
 
-    CacheEntry*       asr_cache_entry; //!< Optional, overrides 'asr_filename' and 'asr_cache_entry_num'
-    std::string       asr_filename;
-    std::string      asr_config;
-    irr::core::vector3df     asr_position;
-    irr::core::quaternion  asr_rotation;
-    collision_box_t*  asr_spawnbox;
-    CacheEntry*       asr_skin_entry;
-    Origin            asr_origin;
-    //std::string   asr_net_username; //LUCIANO,TODO: switch back to UTFString 
-	std::string   asr_net_username;
-    int               asr_net_color;
-    bool              asr_free_position:1;   //!< Disables the automatic spawn position adjustment
-    bool              asr_terrn_machine:1;   //!< This is a fixed machinery
-};
+    // CacheEntry*       asr_cache_entry; //!< Optional, overrides 'asr_filename' and 'asr_cache_entry_num'
+    // std::string       asr_filename;
+    // std::string      asr_config;
+    // irr::core::vector3df     asr_position;
+    // irr::core::quaternion  asr_rotation;
+    // collision_box_t*  asr_spawnbox;
+    // CacheEntry*       asr_skin_entry;
+    // Origin            asr_origin;
+    // //std::string   asr_net_username; //LUCIANO,TODO: switch back to UTFString 
+	// std::string   asr_net_username;
+    // int               asr_net_color;
+    // bool              asr_free_position:1;   //!< Disables the automatic spawn position adjustment
+    // bool              asr_terrn_machine:1;   //!< This is a fixed machinery
+// };
 
 struct ActorModifyRequest
 {
