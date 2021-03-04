@@ -1,0 +1,26 @@
+# include_directories("./include")
+# include_directories("d:/Luciano/bullet3/src")
+# if(WIN32)
+# include_directories("d:/Luciano/irrlicht-1.8.4/include")
+# include_directories("d:/Luciano/irrlicht-1.8.4/Source/Irrlicht")
+# include_directories("d:/Luciano/irrbullet/include")
+# include_directories("d:/Luciano/OIS_install/include/ois")
+# else(WIN32)
+# include_directories("/home/pi/luciano/irrlicht-1.8.4/include")
+# endif(WIN32)
+
+# include_directories("src")
+# include_directories("src/datatypes")
+# include_directories("src/gfx")
+# include_directories("src/physics")
+# include_directories("src/physics/air")
+# include_directories("src/utils")
+
+#set (PHYSICS_FLEX_SRC "${PROJECT_SOURCE_DIR}/src/physics/flex/FlexBody.cpp")
+file(GLOB_RECURSE PHYSICS_FLEX_SRC "${PROJECT_SOURCE_DIR}/physics/flex/*.cpp" "${PROJECT_SOURCE_DIR}/physics/*.cpp")
+#file(GLOB_RECURSE PHYSICS_FLEX_SRC "${PROJECT_SOURCE_DIR}/physics/*.cpp")
+
+add_library(PHYSICS_FLEX_SRC ${PHYSICS_FLEX_SRC})
+#add_library(physics ${PHYSICS_SRC})
+#add_library(gameplay ${GAMEPLAY_SRC})
+

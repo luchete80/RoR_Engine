@@ -1,0 +1,107 @@
+/*
+    This source file is part of Rigs of Rods
+    Copyright 2005-2012 Pierre-Michel Ricordel
+    Copyright 2007-2012 Thomas Fischer
+    Copyright 2013-2017 Petr Ohlidal & contributors
+
+    For more information, see http://www.rigsofrods.org/
+
+    Rigs of Rods is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License version 3, as
+    published by the Free Software Foundation.
+
+    Rigs of Rods is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#pragma once
+
+#include "RoRPrerequisites.h"
+
+#include "BeamData.h"
+
+ 
+ 
+#include <OgreSubMesh.h>
+#include <OgreHardwareBuffer.h>
+
+/// Texture coordinates for old-style actor body (the "cab")
+struct CabTexcoord
+{
+    int    node_id;
+    float  texcoord_u;
+    float  texcoord_v;
+};
+
+/// Submesh for old-style actor body (the "cab")
+struct CabSubmesh
+{
+    enum BackmeshType { BACKMESH_NONE, BACKMESH_OPAQUE, BACKMESH_TRANSPARENT };
+
+    CabSubmesh(): backmesh_type(BACKMESH_NONE), texcoords_pos(0), cabs_pos(0) {}
+
+    BackmeshType  backmesh_type;
+    size_t        texcoords_pos;
+    size_t        cabs_pos;
+};
+
+/// A visual mesh, forming a chassis for softbody actor
+/// At most one instance is created per actor.
+class FlexObj : public ZeroedMemoryAllocator
+{
+public:
+
+    FlexObj(
+        RoR::GfxActor* gfx_actor,
+        node_t* all_nodes, // For initial setup only, pointer is not stored
+        std::vector<CabTexcoord>& texcoords,
+        int numtriangles,
+        int* triangles,
+        std::vector<CabSubmesh>& submeshes,
+        char* texname,
+        const char* name,
+        char* backtexname,
+        char* transtexname);
+
+    ~FlexObj();
+
+    irr::core::vector3df   UpdateFlexObj();
+    void            ScaleFlexObj(float factor);
+
+private:
+
+    struct FlexObjVertex
+    {
+        irr::core::vector3df position;
+        irr::core::vector3df normal;
+        irr::core::vector2df texcoord;
+    };
+
+    /// Compute vertex position in the vertexbuffer (0-based offset) for node `v` of triangle `tidx`
+    int             ComputeVertexPos(int tidx, int v, std::vector<CabSubmesh>& submeshes);
+    irr::core::vector3df   UpdateMesh();
+
+    Ogre::MeshPtr               m_mesh;
+    std::vector<Ogre::SubMesh*> m_submeshes;
+    RoR::GfxActor*              m_gfx_actor;
+    float*                      m_s_ref;
+
+    size_t                      m_vertex_count;
+    int*                        m_vertex_nodes;
+    Ogre::VertexDeclaration*    m_vertex_format;
+    Ogre::HardwareVertexBufferSharedPtr m_hw_vbuf;
+    union
+    {
+        float*              m_vertices_raw;
+        FlexObjVertex*      m_vertices;
+    };
+
+    size_t                      m_index_count;
+    unsigned short*             m_indices;
+    int                         m_triangle_count;	
+};
