@@ -56,21 +56,6 @@ Actor::~Actor()
 
     this->DisjoinInterActorBeams();
 
-    // delete all classes we might have constructed
-    if (ar_dashboard != nullptr)
-    {
-        delete ar_dashboard;
-        ar_dashboard = nullptr;
-    }
-
-    if (m_replay_handler)
-        delete m_replay_handler;
-    m_replay_handler = nullptr;
-
-    if (ar_vehicle_ai)
-        delete ar_vehicle_ai;
-    ar_vehicle_ai = 0;
-
     // TODO: Make sure we catch everything here
     // remove all scene nodes
     if (m_deletion_scene_nodes.size() > 0)
@@ -97,109 +82,8 @@ Actor::~Actor()
         m_deletion_entities.clear();
     }
 
-    // delete wings
-    for (int i = 0; i < ar_num_wings; i++)
-    {
-        // flexAirfoil, airfoil
-        if (ar_wings[i].fa)
-            delete ar_wings[i].fa;
-        if (ar_wings[i].cnode)
-        {
-            ar_wings[i].cnode->removeAndDestroyAllChildren();
-            gEnv->sceneManager->destroySceneNode(ar_wings[i].cnode);
-        }
-    }
-
-    // delete aeroengines
-    for (int i = 0; i < ar_num_aeroengines; i++)
-    {
-        if (ar_aeroengines[i])
-            delete ar_aeroengines[i];
-    }
-
-    // delete screwprops
-    for (int i = 0; i < ar_num_screwprops; i++)
-    {
-        if (ar_screwprops[i])
-        {
-            delete ar_screwprops[i];
-            ar_screwprops[i] = nullptr;
-        }
-    }
-
-    // delete airbrakes
-    for (Airbrake* ab: ar_airbrakes)
-    {
-        delete ab;
-    }
-    ar_airbrakes.clear();
-
-    // delete skidmarks
-    for (int i = 0; i < ar_num_wheels; ++i)
-    {
-        delete m_skid_trails[i];
-        m_skid_trails[i] = nullptr;
-    }
-
-    // delete flares
-    for (size_t i = 0; i < this->ar_flares.size(); i++)
-    {
-        if (ar_flares[i].snode)
-        {
-            ar_flares[i].snode->removeAndDestroyAllChildren();
-            gEnv->sceneManager->destroySceneNode(ar_flares[i].snode);
-        }
-        if (ar_flares[i].bbs)
-            gEnv->sceneManager->destroyBillboardSet(ar_flares[i].bbs);
-        if (ar_flares[i].light)
-            gEnv->sceneManager->destroyLight(ar_flares[i].light);
-    }
-    this->ar_flares.clear();
-
     // delete exhausts
-    for (std::vector<exhaust_t>::iterator it = exhausts.begin(); it != exhausts.end(); it++)
-    {
-        if (it->smokeNode)
-        {
-            it->smokeNode->removeAndDestroyAllChildren();
-            gEnv->sceneManager->destroySceneNode(it->smokeNode);
-        }
-        if (it->smoker)
-        {
-            it->smoker->removeAllAffectors();
-            it->smoker->removeAllEmitters();
-            gEnv->sceneManager->destroyParticleSystem(it->smoker);
-        }
-    }
-
-    // delete ar_custom_particles
-    for (int i = 0; i < ar_num_custom_particles; i++)
-    {
-        if (ar_custom_particles[i].snode)
-        {
-            ar_custom_particles[i].snode->removeAndDestroyAllChildren();
-            gEnv->sceneManager->destroySceneNode(ar_custom_particles[i].snode);
-        }
-        if (ar_custom_particles[i].psys)
-        {
-            ar_custom_particles[i].psys->removeAllAffectors();
-            ar_custom_particles[i].psys->removeAllEmitters();
-            gEnv->sceneManager->destroyParticleSystem(ar_custom_particles[i].psys);
-        }
-    }
-
-    // delete Rails
-    for (std::vector<RailGroup*>::iterator it = m_railgroups.begin(); it != m_railgroups.end(); it++)
-    {
-        delete (*it);
-    }
-
-    if (m_net_label_mt)
-    {
-        m_net_label_mt->setVisible(false);
-        delete m_net_label_mt;
-        m_net_label_mt = nullptr;
-    }
+    
 
     if (m_intra_point_col_detector)
     {
@@ -216,17 +100,6 @@ Actor::~Actor()
     if (m_transfer_case)
         delete m_transfer_case;
 
-    for (int i = 0; i < m_num_axle_diffs; ++i)
-    {
-        if (m_axle_diffs[i] != nullptr)
-            delete m_axle_diffs[i];
-    }
-
-    for (int i = 0; i < m_num_wheel_diffs; ++i)
-    {
-        if (m_wheel_diffs[i] != nullptr)
-            delete m_wheel_diffs[i];
-    }
 
     delete ar_nodes;
     delete ar_beams;
@@ -1263,19 +1136,9 @@ void Actor::SyncReset(bool reset_position)
         ar_screwprops[i]->reset();
     for (int i = 0; i < ar_num_rotators; i++)
         ar_rotators[i].angle = 0.0;
-    for (int i = 0; i < ar_num_wings; i++)
-        ar_wings[i].fa->broken = false;
-    if (ar_autopilot)
-        this->ar_autopilot->reset();
-    if (m_buoyance)
-        m_buoyance->sink = false;
 
-    for (hydrobeam_t& hydrobeam: ar_hydros)
-    {
-        hydrobeam.hb_inertia.ResetCmdKeyDelay();
-    }
 
-    this->GetGfxActor()->ResetFlexbodies();
+    //this->GetGfxActor()->ResetFlexbodies();
 
     // reset on spot with backspace
     if (!reset_position)
@@ -1912,9 +1775,9 @@ void Actor::CalcAnimators(const int flag_state, float& cstate, int& div, Real ti
     //AOA
     if (flag_state & ANIM_FLAG_AOA)
     {
-        float aoa = 0;
-        if (ar_num_wings > 4)
-            aoa = (ar_wings[4].fa->aoa) / 25.0f;
+        // float aoa = 0;
+        // if (ar_num_wings > 4)
+            // aoa = (ar_wings[4].fa->aoa) / 25.0f;
         if ((ar_nodes[0].Velocity.length() * 1.9438) < 10.0f)
             aoa = 0;
         cstate -= aoa;
@@ -2278,113 +2141,6 @@ void Actor::prepareInside(bool inside)
     {
         m_gfx_actor->SetCastShadows(!inside);
     }
-}
-
-void Actor::updateVisual(float dt)
-{
-    Vector3 ref(Vector3::UNIT_Y);
-    autoBlinkReset();
-    UpdateSoundSources();
-
-#ifdef USE_OPENAL
-    //airplane radio chatter
-    if (ar_driveable == AIRPLANE && ar_sim_state != SimState::LOCAL_SLEEPING)
-    {
-        // play random chatter at random time
-        m_avionic_chatter_timer -= dt;
-        if (m_avionic_chatter_timer < 0)
-        {
-            SOUND_PLAY_ONCE(ar_instance_id, SS_TRIG_AVICHAT01 + Math::RangeRandom(0, 12));
-            m_avionic_chatter_timer = Math::RangeRandom(11, 30);
-        }
-    }
-#endif //openAL
-
-    // update exhausts
-    // TODO: Move to GfxActor, don't forget dt*m_simulation_speed
-    if (!m_disable_smoke && ar_engine && exhausts.size() > 0)
-    {
-        std::vector<exhaust_t>::iterator it;
-        for (it = exhausts.begin(); it != exhausts.end(); it++)
-        {
-            if (!it->smoker)
-                continue;
-            Vector3 dir = ar_nodes[it->emitterNode].AbsPosition - ar_nodes[it->directionNode].AbsPosition;
-            //			dir.normalise();
-            ParticleEmitter* emit = it->smoker->getEmitter(0);
-            it->smokeNode->setPosition(ar_nodes[it->emitterNode].AbsPosition);
-            emit->setDirection(dir);
-            if (ar_engine->GetSmoke() != -1.0)
-            {
-                emit->setEnabled(true);
-                emit->setColour(ColourValue(0.0, 0.0, 0.0, 0.02 + ar_engine->GetSmoke() * 0.06));
-                emit->setTimeToLive((0.02 + ar_engine->GetSmoke() * 0.06) / 0.04);
-            }
-            else
-            {
-                emit->setEnabled(false);
-            }
-            emit->setParticleVelocity(1.0 + ar_engine->GetSmoke() * 2.0, 2.0 + ar_engine->GetSmoke() * 3.0);
-        }
-    }
-
-    // Wings (only physics, graphics are updated in GfxActor)
-    float autoaileron = 0;
-    float autorudder = 0;
-    float autoelevator = 0;
-    if (ar_autopilot)
-    {
-        ar_autopilot->UpdateIls(App::GetSimTerrain()->getObjectManager()->GetLocalizers());
-        autoaileron = ar_autopilot->getAilerons();
-        autorudder = ar_autopilot->getRudder();
-        autoelevator = ar_autopilot->getElevator();
-        ar_autopilot->gpws_update(ar_posnode_spawn_height);
-    }
-    autoaileron += ar_aileron;
-    autorudder += ar_rudder;
-    autoelevator += ar_elevator;
-    if (autoaileron < -1.0)
-        autoaileron = -1.0;
-    if (autoaileron > 1.0)
-        autoaileron = 1.0;
-    if (autorudder < -1.0)
-        autorudder = -1.0;
-    if (autorudder > 1.0)
-        autorudder = 1.0;
-    if (autoelevator < -1.0)
-        autoelevator = -1.0;
-    if (autoelevator > 1.0)
-        autoelevator = 1.0;
-    for (int i = 0; i < ar_num_wings; i++)
-    {
-        if (ar_wings[i].fa->type == 'a')
-            ar_wings[i].fa->setControlDeflection(autoaileron);
-        if (ar_wings[i].fa->type == 'b')
-            ar_wings[i].fa->setControlDeflection(-autoaileron);
-        if (ar_wings[i].fa->type == 'r')
-            ar_wings[i].fa->setControlDeflection(autorudder);
-        if (ar_wings[i].fa->type == 'e' || ar_wings[i].fa->type == 'S' || ar_wings[i].fa->type == 'T')
-            ar_wings[i].fa->setControlDeflection(autoelevator);
-        if (ar_wings[i].fa->type == 'f')
-            ar_wings[i].fa->setControlDeflection(flapangles[ar_aerial_flap]);
-        if (ar_wings[i].fa->type == 'c' || ar_wings[i].fa->type == 'V')
-            ar_wings[i].fa->setControlDeflection((autoaileron + autoelevator) / 2.0);
-        if (ar_wings[i].fa->type == 'd' || ar_wings[i].fa->type == 'U')
-            ar_wings[i].fa->setControlDeflection((-autoaileron + autoelevator) / 2.0);
-        if (ar_wings[i].fa->type == 'g')
-            ar_wings[i].fa->setControlDeflection((autoaileron + flapangles[ar_aerial_flap]) / 2.0);
-        if (ar_wings[i].fa->type == 'h')
-            ar_wings[i].fa->setControlDeflection((-autoaileron + flapangles[ar_aerial_flap]) / 2.0);
-        if (ar_wings[i].fa->type == 'i')
-            ar_wings[i].fa->setControlDeflection((-autoelevator + autorudder) / 2.0);
-        if (ar_wings[i].fa->type == 'j')
-            ar_wings[i].fa->setControlDeflection((autoelevator + autorudder) / 2.0);
-        ar_wings[i].fa->updateVerticesPhysics(); // Actual graphics update moved to GfxActor
-    }
-    //setup commands for hydros
-    ar_hydro_aileron_command = autoaileron;
-    ar_hydro_rudder_command = autorudder;
-    ar_hydro_elevator_command = autoelevator;
 }
 
 void Actor::AddInterActorBeam(beam_t* beam, Actor* a, Actor* b)

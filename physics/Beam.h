@@ -152,8 +152,8 @@ public:
     bool              isPreloadedWithTerrain() const    { return m_preloaded_with_terrain; };
     bool              isBeingReset() const              { return m_ongoing_reset; };
     int               GetNumNodes() const               { return ar_num_nodes; }
-    CacheEntry*       GetUsedSkin() const               { return m_used_skin_entry; }
-    void              SetUsedSkin(CacheEntry* skin)     { m_used_skin_entry = skin; }
+    //CacheEntry*       GetUsedSkin() const               { return m_used_skin_entry; }
+    //void              SetUsedSkin(CacheEntry* skin)     { m_used_skin_entry = skin; }
     float             getSpeed()                        { return m_avg_node_velocity.length(); };
     irr::core::vector3df     getVelocity() const               { return m_avg_node_velocity; }; //!< average actor velocity, calculated using the actor positions of the last two frames
 #ifdef USE_ANGELSCRIPT
@@ -409,7 +409,7 @@ private:
     std::vector<std::shared_ptr<Task>> m_flexbody_tasks;   //!< Gfx state
     //std::shared_ptr<RigDef::File>      m_definition;
     //std::unique_ptr<RoR::GfxActor>     m_gfx_actor;
-    RoR::PerVehicleCameraContext       m_camera_context;
+    //RoR::PerVehicleCameraContext       m_camera_context;
     std::string                       m_section_config;
     std::vector<SlideNode>             m_slidenodes;       //!< all the SlideNodes available on this actor
     std::vector<RailGroup*>            m_railgroups;       //!< all the available RailGroups for this actor
