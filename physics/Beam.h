@@ -27,6 +27,7 @@
 #include "BeamData.h"
 #include "CmdKeyInertia.h"
 #include <aabbox3d.h>
+#include <quaternion.h>
 //#include "GfxActor.h"
 //#include "PerVehicleCameraContext.h"
 //#include "RigDef_Prerequisites.h"
@@ -169,19 +170,17 @@ public:
     beam_t*           ar_beams;
     int               ar_num_beams;
     std::vector<beam_t*> ar_inter_beams;    //!< Beams connecting 2 actors
-    shock_t*          ar_shocks;            //!< Shock absorbers
-    int               ar_num_shocks;        //!< Number of shock absorbers
-    bool              ar_has_active_shocks; //!< Are there active stabilizer shocks?
+
     rotator_t*        ar_rotators;
     int               ar_num_rotators;
-    wing_t*           ar_wings;
-    int               ar_num_wings;
+
+
     std::vector<std::string>  description;
     std::vector<authorinfo_t> authors;
 
-    std::vector<Airbrake*>    ar_airbrakes;
-    Ogre::AxisAlignedBox      ar_bounding_box;     //!< standard bounding box (surrounds all nodes of an actor)
-    Ogre::AxisAlignedBox      ar_predicted_bounding_box;
+    
+    irr::core::aabbox3df      ar_bounding_box;     //!< standard bounding box (surrounds all nodes of an actor)
+    irr::core::aabbox3df      ar_predicted_bounding_box;
     float                     ar_initial_total_mass;
     std::vector<float>        ar_initial_node_masses;
     std::vector<irr::core::vector3df>     ar_initial_node_positions;
@@ -189,8 +188,8 @@ public:
     std::vector<float>             ar_minimass; //!< minimum node mass in Kg
     std::vector<std::vector<int>>  ar_node_to_node_connections;
     std::vector<std::vector<int>>  ar_node_to_beam_connections;
-    std::vector<Ogre::AxisAlignedBox>  ar_collision_bounding_boxes; //!< smart bounding boxes, used for determining the state of an actor (every box surrounds only a subset of nodes)
-    std::vector<Ogre::AxisAlignedBox>  ar_predicted_coll_bounding_boxes;
+    std::vector<irr::core::aabbox3df>  ar_collision_bounding_boxes; //!< smart bounding boxes, used for determining the state of an actor (every box surrounds only a subset of nodes)
+    std::vector<irr::core::aabbox3df>  ar_predicted_coll_bounding_boxes;
     int               ar_num_contactable_nodes; //!< Total number of nodes which can contact ground or cabs
     int               ar_num_contacters; //!< Total number of nodes which can selfcontact cabs
     int               ar_num_wheels;
@@ -409,8 +408,11 @@ private:
     std::vector<SlideNode>             m_slidenodes;       //!< all the SlideNodes available on this actor
     std::vector<RailGroup*>            m_railgroups;       //!< all the available RailGroups for this actor
     //std::vector<Ogre::Entity*>         m_deletion_entities;    //!< For unloading vehicle; filled at spawn.
-    std::vector<irr::scene::ISceneNode*>      m_deletion_scene_nodes; //!< For unloading vehicle; filled at spawn.
-    int               m_proped_wheel_pairs[MAX_WHEELS];    //!< Physics attr; For inter-differential locking
+    
+	//std::vector<irr::scene::ISceneNode*>      m_deletion_scene_nodes; //!< For unloading vehicle; filled at spawn.
+    
+	
+	int               m_proped_wheel_pairs[MAX_WHEELS];    //!< Physics attr; For inter-differential locking
     int               m_num_proped_wheels;          //!< Physics attr, filled at spawn - Number of propelled wheels.
     float             m_avg_proped_wheel_radius;    //!< Physics attr, filled at spawn - Average proped wheel radius.
     float             m_avionic_chatter_timer;      //!< Sound fx state
@@ -422,9 +424,8 @@ private:
     irr::core::vector3df     m_avg_node_position_prev;
     irr::core::vector3df     m_avg_node_velocity;          //!< average node velocity (compared to the previous frame step)
     float        m_replay_timer;               //!< Sim state
-    blinktype         m_blink_type;                 //!< Sim state; Blinker = turn signal
-    float             m_stabilizer_shock_sleep;     //!< Sim state
-    Replay*           m_replay_handler;
+
+    //Replay*           m_replay_handler;
     float             m_total_mass;            //!< Physics state; total mass in Kg
     int               m_mouse_grab_node;       //!< Sim state; node currently being dragged by user
     irr::core::vector3df     m_mouse_grab_pos;
@@ -477,21 +478,15 @@ private:
     bool m_hud_features_ok:1;      //!< Gfx state; Are HUD features matching actor's capabilities?
     bool m_slidenodes_locked:1;    //!< Physics state; Are SlideNodes locked?
     bool m_blinker_autoreset:1;    //!< Gfx state; We're steering - when we finish, the blinker should turn off
-    bool m_net_initialized:1;
-    bool m_net_brake_light:1;
-    bool m_net_reverse_light:1;
-    bool m_reverse_light_active:1; //!< Gfx state
-    bool m_water_contact:1;        //!< Scripting state
-    bool m_water_contact_old:1;    //!< Scripting state
+
+
     bool m_has_command_beams:1;    //!< Physics attr;
-    bool m_beacon_light_is_active:1;        //!< Gfx state
-    bool m_custom_particles_enabled:1;      //!< Gfx state
+
     bool m_preloaded_with_terrain:1;        //!< Spawn context (TODO: remove!)
     bool m_beam_break_debug_enabled:1;  //!< Logging state
     bool m_beam_deform_debug_enabled:1; //!< Logging state
     bool m_trigger_debug_enabled:1;     //!< Logging state
-    bool m_disable_default_sounds:1;    //!< Spawner context; TODO: remove
-    bool m_disable_smoke:1;             //!< Gfx state
+
 
     struct VehicleForceSensors
     {

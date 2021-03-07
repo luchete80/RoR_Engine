@@ -15,7 +15,8 @@
     along with Rigs of Rods. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
+#ifndef _SIMCONSTANTS_H_
+#define _SIMCONSTANTS_H_
 
 /* maximum limits */
 static const int   MAX_ACTORS                 = 5000;            //!< maximum number of actors per game session
@@ -73,3 +74,5 @@ static const int   NODE_LOCKGROUP_DEFAULT       = -1; // all hooks scan all node
 static const int   DEFAULT_DETACHER_GROUP       = 0; // default for detaching beam group
 
 static const float FLAP_ANGLES[6] = {0.f, -0.07f, -0.17f, -0.33f, -0.67f, -1.f};
+
+#endif
