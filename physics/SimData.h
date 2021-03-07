@@ -31,6 +31,8 @@
 //#include "BitFlags.h"
 #include "CmdKeyInertia.h"
 
+#include <vector3d.h>
+
 #include <memory>
 // #include <Ogre.h>
 // #include <OgreUTFString.h>
@@ -226,16 +228,16 @@ struct node_t
     node_t()               { memset(this, 0, sizeof(node_t)); nd_coll_bbox_id = INVALID_BBOX; }
     node_t(size_t _pos)    { memset(this, 0, sizeof(node_t)); nd_coll_bbox_id = INVALID_BBOX; pos = static_cast<short>(_pos); }
 
-    Ogre::Vector3   RelPosition;             //!< relative to the local physics origin (one origin per actor) (shaky)
-    Ogre::Vector3   AbsPosition;             //!< absolute position in the world (shaky)
-    Ogre::Vector3   Velocity;
-    Ogre::Vector3   Forces;
+    irr::core::vector3df   RelPosition;             //!< relative to the local physics origin (one origin per actor) (shaky)
+    irr::core::vector3df   AbsPosition;             //!< absolute position in the world (shaky)
+    irr::core::vector3df   Velocity;
+    irr::core::vector3df   Forces;
 
-    Ogre::Real      mass;
-    Ogre::Real      buoyancy;
-    Ogre::Real      friction_coef;
-    Ogre::Real      surface_coef;
-    Ogre::Real      volume_coef;
+    float      mass;
+    float      buoyancy;
+    float      friction_coef;
+    float      surface_coef;
+    float      volume_coef;
 
     int16_t         pos;                     //!< This node's index in Actor::ar_nodes array.
     int16_t         nd_coll_bbox_id;         //!< Optional attribute (-1 = none) - multiple collision bounding boxes defined in truckfile
@@ -256,9 +258,9 @@ struct node_t
     bool            nd_under_water:1;        //!< State; GFX hint
     bool            nd_no_mouse_grab:1;      //!< Attr; User-defined
 
-    Ogre::Real      nd_avg_collision_slip;   //!< Physics state; average slip velocity across the last few physics frames
-    Ogre::Vector3   nd_last_collision_slip;  //!< Physics state; last collision slip vector
-    Ogre::Vector3   nd_last_collision_force; //!< Physics state; last collision force
+    float      nd_avg_collision_slip;   //!< Physics state; average slip velocity across the last few physics frames
+    irr::core::vector3df   nd_last_collision_slip;  //!< Physics state; last collision slip vector
+    irr::core::vector3df   nd_last_collision_force; //!< Physics state; last collision force
     ground_model_t* nd_last_collision_gm;    //!< Physics state; last collision 'ground model' (surface definition)
 };
 
@@ -269,15 +271,15 @@ struct beam_t
 
     node_t*         p1;
     node_t*         p2;
-    Ogre::Real      k;                     //!< tensile spring
-    Ogre::Real      d;                     //!< damping factor
-    Ogre::Real      L;                     //!< length
-    Ogre::Real      minmaxposnegstress;
-    Ogre::Real      maxposstress;
-    Ogre::Real      maxnegstress;
-    Ogre::Real      strength;
-    Ogre::Real      stress;
-    Ogre::Real      plastic_coef;
+    float      k;                     //!< tensile spring
+    float      d;                     //!< damping factor
+    float      L;                     //!< length
+    float      minmaxposnegstress;
+    float      maxposstress;
+    float      maxnegstress;
+    float      strength;
+    float      stress;
+    float      plastic_coef;
     int             detacher_group;        //!< Attribute: detacher group number (integer)
     SpecialBeam     bounded;
     BeamType        bm_type;
@@ -286,18 +288,18 @@ struct beam_t
     bool            bm_disabled;
     bool            bm_broken;
 
-    Ogre::Real      shortbound;
-    Ogre::Real      longbound;
-    Ogre::Real      refL;                  //!< reference length
+    float      shortbound;
+    float      longbound;
+    float      refL;                  //!< reference length
 
     shock_t*        shock;
 
-    Ogre::Real      initial_beam_strength; //!< for reset
-    Ogre::Real      default_beam_deform;   //!< for reset
+    float      initial_beam_strength; //!< for reset
+    float      default_beam_deform;   //!< for reset
 
-    Ogre::Real      debug_k;               //!< debug shock spring_rate
-    Ogre::Real      debug_d;               //!< debug shock damping
-    Ogre::Real      debug_v;               //!< debug shock velocity
+    float      debug_k;               //!< debug shock spring_rate
+    float      debug_d;               //!< debug shock damping
+    float      debug_v;               //!< debug shock velocity
 };
 
 struct shock_t
@@ -369,16 +371,16 @@ struct wheel_t
     node_t*     wh_axis_node_0;
     node_t*     wh_axis_node_1;
     int         wh_propulsed;             // TODO: add enum ~ only_a_ptr, 08/2017
-    Ogre::Real  wh_radius;
-    Ogre::Real  wh_rim_radius;
-    Ogre::Real  wh_speed;             //!< Current wheel speed in m/s
-    Ogre::Real  wh_avg_speed;         //!< Internal physics state; Do not read from this
-    Ogre::Real  wh_alb_coef;          //!< Sim state; Current anti-lock  brake modulation ratio
-    Ogre::Real  wh_tc_coef;           //!< Sim state; Current traction control modulation ratio
-    Ogre::Real  wh_mass;              //!< Total rotational mass of the wheel
-    Ogre::Real  wh_torque;            //!< Internal physics state; Do not read from this
-    Ogre::Real  wh_last_torque;       //!< Last internal forces (engine / brakes / diffs)
-    Ogre::Real  wh_last_retorque;     //!< Last external forces (friction, ...)
+    float  wh_radius;
+    float  wh_rim_radius;
+    float  wh_speed;             //!< Current wheel speed in m/s
+    float  wh_avg_speed;         //!< Internal physics state; Do not read from this
+    float  wh_alb_coef;          //!< Sim state; Current anti-lock  brake modulation ratio
+    float  wh_tc_coef;           //!< Sim state; Current traction control modulation ratio
+    float  wh_mass;              //!< Total rotational mass of the wheel
+    float  wh_torque;            //!< Internal physics state; Do not read from this
+    float  wh_last_torque;       //!< Last internal forces (engine / brakes / diffs)
+    float  wh_last_retorque;     //!< Last external forces (friction, ...)
     float       wh_net_rp;
     float       wh_width;
     int         wh_detacher_group;
@@ -387,10 +389,10 @@ struct wheel_t
     // Debug
     float debug_rpm;
     float debug_torque;
-    Ogre::Vector3 debug_vel;
-    Ogre::Vector3 debug_slip;
-    Ogre::Vector3 debug_force;
-    Ogre::Vector3 debug_scaled_cforce;
+    irr::core::vector3df debug_vel;
+    irr::core::vector3df debug_slip;
+    irr::core::vector3df debug_force;
+    irr::core::vector3df debug_scaled_cforce;
 };
 
 struct hook_t
@@ -578,17 +580,17 @@ struct collision_box_t
     bool enabled;
     CollisionEventFilter event_filter;
     short eventsourcenum;
-    Ogre::Vector3 lo;           //!< absolute collision box
-    Ogre::Vector3 hi;           //!< absolute collision box
-    Ogre::Vector3 center;       //!< center of rotation
+    irr::core::vector3df lo;           //!< absolute collision box
+    irr::core::vector3df hi;           //!< absolute collision box
+    irr::core::vector3df center;       //!< center of rotation
     Ogre::Quaternion rot;       //!< rotation
     Ogre::Quaternion unrot;     //!< rotation
-    Ogre::Vector3 selfcenter;   //!< center of self rotation
+    irr::core::vector3df selfcenter;   //!< center of self rotation
     Ogre::Quaternion selfrot;   //!< self rotation
     Ogre::Quaternion selfunrot; //!< self rotation
-    Ogre::Vector3 relo;         //!< relative collision box
-    Ogre::Vector3 rehi;         //!< relative collision box
-    Ogre::Vector3 campos;       //!< camera position
+    irr::core::vector3df relo;         //!< relative collision box
+    irr::core::vector3df rehi;         //!< relative collision box
+    irr::core::vector3df campos;       //!< camera position
 };
 
 struct ground_model_t
@@ -652,7 +654,7 @@ struct ActorSpawnRequest
     CacheEntry*         asr_cache_entry = nullptr; //!< Optional, overrides 'asr_filename' and 'asr_cache_entry_num'
     std::string         asr_filename;
     Ogre::String        asr_config;
-    Ogre::Vector3       asr_position = Ogre::Vector3::ZERO;
+    irr::core::vector3df       asr_position = irr::core::vector3df::ZERO;
     Ogre::Quaternion    asr_rotation = Ogre::Quaternion::ZERO;
     collision_box_t*    asr_spawnbox = nullptr;
     CacheEntry*         asr_skin_entry = nullptr;
