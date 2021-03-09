@@ -302,6 +302,54 @@ struct beam_t
     float      debug_v;               //!< debug shock velocity
 };
 
+struct shock_t
+{
+    shock_t() { memset(this, 0, sizeof(shock_t)); }
+
+    int beamid;
+    int flags;
+
+    bool trigger_enabled;       //!< general trigger,switch and blocker state
+    float trigger_switch_state; //!< needed to avoid doubleswitch, bool and timer in one
+    float trigger_boundary_t;   //!< optional value to tune trigger_switch_state autorelease
+    int trigger_cmdlong;        //!< F-key for trigger injection longbound-check
+    int trigger_cmdshort;       //!< F-key for trigger injection shortbound-check
+    int last_debug_state;       //!< smart debug output
+
+    float springin;  //!< shocks2 & shocks3
+    float dampin;    //!< shocks2 & shocks3
+    float springout; //!< shocks2 & shocks3
+    float dampout;   //!< shocks2 & shocks3
+
+    float sprogin;   //!< shocks2
+    float dprogin;   //!< shocks2
+    float sprogout;  //!< shocks2
+    float dprogout;  //!< shocks2
+
+    float splitin;   //!< shocks3
+    float dslowin;   //!< shocks3
+    float dfastin;   //!< shocks3
+    float splitout;  //!< shocks3
+    float dslowout;  //!< shocks3
+    float dfastout;  //!< shocks3
+
+    float sbd_spring;           //!< set beam default for spring
+    float sbd_damp;             //!< set beam default for damping
+};
+
+struct collcab_rate_t
+{
+    int rate;     // remaining amount of physics cycles to be skipped
+    int distance; // distance (in physics cycles) to the previous collision check
+};
+
+struct soundsource_t
+{
+    SoundScriptInstance* ssi;
+    int nodenum;
+    int type;
+};
+
 struct commandbeam_state_t
 {
     commandbeam_state_t() { memset(this, 0, sizeof(commandbeam_state_t)); }
@@ -345,17 +393,6 @@ struct command_t
     Ogre::String description;
     RoR::CmdKeyInertia rotator_inertia;
     RoR::CmdKeyInertia command_inertia;
-};
-
-struct hydrobeam_t
-{
-    uint16_t hb_beam_index; //!< Index to Actor::ar_beams array
-    float    hb_ref_length; //!< Idle length in meters
-    float    hb_speed;      //!< Rate of change
-    int      hb_flags;
-    int      hb_anim_flags; //!< Animators (beams updating length based on simulation variables)
-    float    hb_anim_param; //!< Animators (beams updating length based on simulation variables)
-    RoR::CmdKeyInertia  hb_inertia;
 };
 
 struct rotator_t
